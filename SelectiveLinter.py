@@ -2,7 +2,7 @@
 import argparse
 import os
 
-import GitDiff
+from GitDiff import GitDiff, GitHunk
 
 parser = argparse.ArgumentParser(description="Call SwiftLint only on the lines changed in git HEAD.")
 parser.add_argument('--dir', 
@@ -12,12 +12,11 @@ parser.add_argument('--dir',
 
 def run():
     args = parser.parse_args()
-    differ = GitDiff.GitDiff(args.dir)
+    differ = GitDiff(args.dir)
     differ.get_files_changed()
-    changes = differ.get_diff_lines()
-    print(len(changes))
-    print(changes)
-
+    hunks = differ.get_diff_hunks()
+    for hunk in hunks:
+        print(hunk)
 
 if __name__ == "__main__":
     run()
