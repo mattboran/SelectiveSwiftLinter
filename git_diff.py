@@ -79,3 +79,4 @@ class GitDiff:
         for hunk in self._hunks:
             diff_lines += hunk.get_file_and_line_numbers()
         return diff_lines
+        
