@@ -14,11 +14,10 @@ parser.add_argument('--dir',
 def run():
     args = parser.parse_args()
     differ = GitDiff(args.dir)
-    differ.get_files_changed()
-    hunks = differ.get_diff_hunks()
-    for hunk in hunks:
+    differ.diff()
+    for hunk in differ._hunks:
         print(hunk)
-    linter = SwiftLint(differ.files_changed)
+    linter = SwiftLint(dir=args.dir, files=differ.files_changed)
     linter.lint()
     errors = linter.check_errors_against_diff(differ.diff_lines)
     if not errors:

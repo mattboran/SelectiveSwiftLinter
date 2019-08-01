@@ -4,6 +4,10 @@ import re
 import sh
 import sys
 
+# Constants
+
+ANSI_ESCAPE_REGEX = r'\x1B[@-_][0-?]*[ -/]*[@-~]'
+HUNK_HEADER_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+,[0-9]+ @@)'
 
 class GitHunk:
 
@@ -11,10 +15,12 @@ class GitHunk:
         self.file = file
         self.line_numbers = []
         self.lines_changed = []
+
         line_number = int(re.search(r'\+([0-9]+)', line_header).group(0)[1:])
         hunk = changes.split('\n')[1:]
         for line in hunk:
-            if line.startswith('-'): continue
+            if line.startswith('-'): 
+                continue
             elif line.startswith('+'): 
                 line = line[1:]
                 self.line_numbers.append(line_number)
@@ -37,34 +43,39 @@ class GitHunk:
 class GitDiff:
 
     def __init__(self, directory):
-        self.directory = os.path.abspath(directory)
-        self.git = sh.git.bake(_cwd=directory)
-        self.hunks = []
         self.files_changed = []
         self.diff_lines = []
+        self._directory = os.path.abspath(directory)
+        self._git = sh.git.bake(_cwd=directory)
+        self._hunks = []
 
-    def get_files_changed(self):
-        files = self.git('--no-pager', 'diff', '--name-only', 'HEAD')
-        self.files_changed = [self.directory + '/' + file for file in files.split('\n') if file]
-        return self.files_changed
+    def diff(self):
+        self.files_changed = self._get_files_changed()
+        for i, filename in enumerate(self.files_changed):
+            print("Diffing file {}: {}".format(i, filename))
+            self._hunks += self._get_diff_hunks(filename)
+        self.diff_lines = self._get_diff_lines()
 
-    def get_diff_hunks(self):
-        hunk_header_regex = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+,[0-9]+ @@)'
-        ansi_escape_regex = r'\x1B[@-_][0-?]*[ -/]*[@-~]'
+    def _get_files_changed(self):
+        files = self._git('--no-pager', 'diff', '--name-only', 'HEAD')
+        files_changed = [self._directory + '/' + file for file in files.split('\n') if file]
+        return files_changed
+
+    def _get_diff_hunks(self, filename):
         hunks = []
-        diff_lines = []
-        for i, file in enumerate(self.files_changed):
-            print("Diffing file {}: {}".format(i, file))
-            diff = self.git('--no-pager', 'diff', 'HEAD', file)
-            stdout = diff.stdout.decode("utf-8", "ignore")
-            diff_output = re.sub(ansi_escape_regex, '', stdout)
-            captures = re.split(hunk_header_regex, diff_output)
-            line_numbers = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 0] 
-            lines_changed = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 1]
-            for line, changes in zip(line_numbers, lines_changed):
-                hunk = GitHunk(file, line, changes)
-                hunks.append(hunk)
-                diff_lines += hunk.get_file_and_line_numbers()
-        self.hunks = hunks
-        self.diff_lines = diff_lines
+        diff = self._git('--no-pager', 'diff', 'HEAD', filename)
+        stdout = diff.stdout.decode("utf-8", "ignore")
+        diff_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
+        captures = re.split(HUNK_HEADER_REGEX, diff_output)
+        line_numbers = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 0] 
+        lines_changed = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 1]
+        for line, changes in zip(line_numbers, lines_changed):
+            hunk = GitHunk(filename, line, changes)
+            hunks.append(hunk)
         return hunks
+
+    def _get_diff_lines(self):
+        diff_lines = []
+        for hunk in self._hunks:
+            diff_lines += hunk.get_file_and_line_numbers()
+        return diff_lines

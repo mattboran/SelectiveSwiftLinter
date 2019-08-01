@@ -3,10 +3,12 @@ import os
 import sh
 
 class SwiftLint:
-    def __init__(self, files):
+    def __init__(self, dir=None, files=[]):
         self.linter = sh.swiftlint.lint.bake() # pylint: disable=no-member
         self.files = files
         self.lint_errors = {}
+        rootdir = dir or os.getcwd()
+        os.chdir(os.path.abspath(rootdir))
 
     def lint(self):
         lint_errors = {}
@@ -22,11 +24,12 @@ class SwiftLint:
     def check_errors_against_diff(self, diff_lines):
         errors = set()
         for line in diff_lines:
-            # import pdb; pdb.set_trace()
             filename = line.split(':')[0]
+            line_number = line.split(':')[1]
             potential_errors = self.lint_errors[filename]
             for error in potential_errors:
-                if filename in error:
+                location = ":".join([filename, line_number])
+                if location in error:
                     errors.add(error)
         return errors
 
