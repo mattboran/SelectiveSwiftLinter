@@ -33,6 +33,9 @@ class GitHunk:
             lines.append("{}:{}".format(self.file, line_number))
         return lines
 
+    def encode(self):
+        return self.__str__().encode("utf-8")
+
     def __str__(self):
         lines_changed = ""
         for line_number, line in zip(self.line_numbers, self.lines_changed):
@@ -45,20 +48,21 @@ class GitDiff:
     def __init__(self, directory):
         self.files_changed = []
         self.diff_lines = []
+        self.hunks = []
         self._directory = os.path.abspath(directory)
         self._git = sh.git.bake(_cwd=directory)
-        self._hunks = []
 
     def diff(self):
         self.files_changed = self._get_files_changed()
         for i, filename in enumerate(self.files_changed):
             print("Diffing file {}: {}".format(i, filename))
-            self._hunks += self._get_diff_hunks(filename)
+            self.hunks += self._get_diff_hunks(filename)
         self.diff_lines = self._get_diff_lines()
 
     def _get_files_changed(self):
         files = self._git('--no-pager', 'diff', '--name-only', 'HEAD')
-        files_changed = [self._directory + '/' + file for file in files.split('\n') if file]
+        files_changed = [self._directory + '/' + filename 
+                         for filename in files.split('\n') if filename and filename.endswith(".swift")]
         return files_changed
 
     def _get_diff_hunks(self, filename):
@@ -76,7 +80,7 @@ class GitDiff:
 
     def _get_diff_lines(self):
         diff_lines = []
-        for hunk in self._hunks:
+        for hunk in self.hunks:
             diff_lines += hunk.get_file_and_line_numbers()
         return diff_lines
         

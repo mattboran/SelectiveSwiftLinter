@@ -4,7 +4,7 @@ import os
 
 from git_diff import GitDiff, GitHunk
 from linter import SwiftLint
-from output_formatter import LintError
+from output import LintError, ChangeVerifier
 
 parser = argparse.ArgumentParser(description="Call SwiftLint only on the lines changed in git HEAD.")
 parser.add_argument('--dir', 
@@ -18,12 +18,20 @@ def run():
     differ.diff()
     linter = SwiftLint(dir=args.dir, files=differ.files_changed)
     errors = linter.check_errors_against_diff(differ.diff_lines)
+    cache = ChangeVerifier(differ.hunks)
     print("")
     if not errors:
+        cache.clear_cache()
         return 0
     else:
+        if cache.has_unchanged_cache():
+            cache.clear_cache()
+            print("\nBypassing errors.")
+            return 0
+        cache.write_cache()
         for error in errors:
             print(LintError(error))
+        print("\nErrors found. Please fix errors and retry or make no changes and re-commit to bypass.")
         return 1
 
 if __name__ == "__main__":
