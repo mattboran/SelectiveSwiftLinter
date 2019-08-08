@@ -2,9 +2,9 @@
 import argparse
 import os
 
-from git_diff import GitDiff, GitHunk
-from linter import SwiftLint
-from output import LintError, ChangeVerifier
+from selective_linter.git_diff import GitDiff, GitHunk
+from selective_linter.linter import SwiftLint
+from selective_linter.output import LintError, ChangeVerifier
 
 parser = argparse.ArgumentParser(description="Call SwiftLint only on the lines changed in git HEAD.")
 parser.add_argument('--dir', 
@@ -35,4 +35,4 @@ def run():
         return 1
 
 if __name__ == "__main__":
-    run()
+    SelectiveLinter.run()
