@@ -18,4 +18,8 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independant",
     ],
+    install_requires=[
+        'colorama',
+        'sh'
+    ]
 )

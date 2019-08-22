@@ -60,14 +60,14 @@ class GitDiff:
         self.diff_lines = self._get_diff_lines()
 
     def _get_files_changed(self):
-        files = self._git('--no-pager', 'diff', '--name-only', 'HEAD')
+        files = self._git('--no-pager', 'diff', '--cached', '--name-only')
         files_changed = [self._directory + '/' + filename 
                          for filename in files.split('\n') if filename and filename.endswith(".swift")]
         return files_changed
 
     def _get_diff_hunks(self, filename):
         hunks = []
-        diff = self._git('--no-pager', 'diff', 'HEAD', filename)
+        diff = self._git('--no-pager', 'diff', '--cached', filename)
         stdout = diff.stdout.decode("utf-8", "ignore")
         diff_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
         captures = re.split(HUNK_HEADER_REGEX, diff_output)
