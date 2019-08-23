@@ -5,3 +5,5 @@ env
 build
 dist
 *.egg-info
+*.swift
+.lint_cache
