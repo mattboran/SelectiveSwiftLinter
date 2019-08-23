@@ -13,3 +13,14 @@ To install this Python3 package
 $ pip3 install selective_linter
 ```
 
+To install the git hook to a repository, navigate to the root of that repository and run
+
+```sh
+$ python3 -m selective_linter --install
+```
+
+To deactivate the script run
+
+```sh
+$ git config hooks.skipswitflint true
+```
