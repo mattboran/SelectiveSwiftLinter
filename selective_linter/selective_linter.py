@@ -14,7 +14,6 @@ parser.set_defaults(install=False)
 running_as_script = False
 
 def run():
-    print("Running as script: {}".format(running_as_script))
     if not running_as_script:
         from selective_linter.git_diff import GitDiff
         from selective_linter.linter import SwiftLint
