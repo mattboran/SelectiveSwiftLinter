@@ -14,7 +14,12 @@ parser.set_defaults(install=False)
 running_as_script = False
 
 def run():
-    if not running_as_script:
+    if running_as_script:
+        from git_diff import GitDiff, GitHunk
+        from linter import SwiftLint
+        from output import LintError, ChangeVerifier
+        from installer import Installer
+    else:
         from selective_linter.git_diff import GitDiff
         from selective_linter.linter import SwiftLint
         from selective_linter.output import LintError, ChangeVerifier
@@ -39,15 +44,11 @@ def run():
             print("\nBypassing errors.")
             return 0
         cache.write_cache()
-        for error in errors:
+        for error in sorted(errors):
             print(LintError(error))
         print("\nErrors found. Please fix errors and retry or make no changes and re-commit to bypass.")
         return 1
 
 if __name__ == "__main__":
-    from git_diff import GitDiff, GitHunk
-    from linter import SwiftLint
-    from output import LintError, ChangeVerifier
-    from installer import Installer
     running_as_script = True
     run()

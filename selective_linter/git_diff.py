@@ -17,7 +17,6 @@ class GitHunk:
         self.line_numbers = []
         self.lines_changed = []
         matches = re.search(r'\+([0-9]+)', line_header)
-        import pdb; pdb.set_trace()
         line_number = int(matches.group(0)[1:])
         hunk = changes.split('\n')[1:]
         for line in hunk:
@@ -76,11 +75,9 @@ class GitDiff:
         captures = re.split(regex, diff_output)
         line_numbers = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 0] 
         lines_changed = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 1]
-        import pdb; pdb.set_trace()
         for line, changes in zip(line_numbers, lines_changed):
             hunk = GitHunk(filename, line, changes)
             hunks.append(hunk)
-        import pdb; pdb.set_trace()
         return hunks
 
     def _regex_for_diff_output(self, diff_output):

@@ -7,15 +7,17 @@ HOOK = """
 skipswiftlint=$(git config --bool hooks.skipswiftlint)
 if [ "$skipswiftlint" != "true" ]
 then
-    retVal=$(python3 -m selective_linter)
+    python3 -m selective_linter
+    retVal=$?
     if [ $retVal != 0 ]
     then
-        cat <<\EOF
+    cat <<\EOF
+
 You can disable this check by using:
 
-    git config ghooks.skipswiftlint true
+    git config hooks.skipswiftlint true
 EOF
-    fi
+fi
     exit $retVal
 else
     exit 0
