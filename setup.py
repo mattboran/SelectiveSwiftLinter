@@ -12,6 +12,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mattboran/SelectiveSwiftLinter",
+    download_url="https://github.com/mattboran/SelectiveSwiftLinter/releases/download/0.0.1/selective_linter-0.0.1-py3-none-any.whl",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
