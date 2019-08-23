@@ -7,8 +7,16 @@ HOOK = """
 skipswiftlint=$(git config --bool hooks.skipswiftlint)
 if [ "$skipswiftlint" != "true" ]
 then
-    python3 -m selective_linter
-    exit $?
+    retVal=$(python3 -m selective_linter)
+    if [ $retVal != 0 ]
+    then
+        cat <<\EOF
+You can disable this check by using:
+
+    git config ghooks.skipswiftlint true
+EOF
+    fi
+    exit $retVal
 else
     exit 0
 fi
@@ -36,3 +44,5 @@ class Installer:
         with open(pre_hook_dir, 'w+') as pre_commit_hook:
             pre_commit_hook.write(HOOK)
         print("Wrote hook to {}".format(pre_hook_dir))
+        sh.chmod('744', pre_hook_dir)
+        print("Made hook executable")

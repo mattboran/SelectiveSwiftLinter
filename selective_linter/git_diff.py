@@ -7,7 +7,8 @@ import sys
 # Constants
 
 ANSI_ESCAPE_REGEX = r'\x1B[@-_][0-?]*[ -/]*[@-~]'
-HUNK_HEADER_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+(,[0-9]+)* @@)'
+HUNK_HEADER_NEW_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+ @@)'
+HUNK_HEADER_EXISTING_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+,[0-9]+ @@)'
 
 class GitHunk:
 
@@ -15,8 +16,9 @@ class GitHunk:
         self.file = file
         self.line_numbers = []
         self.lines_changed = []
-        
-        line_number = int(re.search(r'\+([0-9]+)', line_header).group(0)[1:])
+        matches = re.search(r'\+([0-9]+)', line_header)
+        import pdb; pdb.set_trace()
+        line_number = int(matches.group(0)[1:])
         hunk = changes.split('\n')[1:]
         for line in hunk:
             if line.startswith('-'): 
@@ -70,14 +72,21 @@ class GitDiff:
         diff = self._git('--no-pager', 'diff', '--cached', filename)
         stdout = diff.stdout.decode("utf-8", "ignore")
         diff_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
-        captures = re.split(HUNK_HEADER_REGEX, diff_output)
-        captures = [capture for capture in captures if capture]
+        regex = self._regex_for_diff_output(diff_output)
+        captures = re.split(regex, diff_output)
         line_numbers = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 0] 
         lines_changed = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 1]
+        import pdb; pdb.set_trace()
         for line, changes in zip(line_numbers, lines_changed):
             hunk = GitHunk(filename, line, changes)
             hunks.append(hunk)
+        import pdb; pdb.set_trace()
         return hunks
+
+    def _regex_for_diff_output(self, diff_output):
+        if 'new file' in diff_output:
+             return HUNK_HEADER_NEW_REGEX
+        return HUNK_HEADER_EXISTING_REGEX
 
     def _get_diff_lines(self):
         diff_lines = []
