@@ -10,15 +10,19 @@ class SwiftLint:
         rootdir = dir or os.getcwd()
         os.chdir(os.path.abspath(rootdir))
         self._lint()
+        self.log = ""
 
     def _lint(self):
         lint_errors = {}
         for filename in self.files:
             lint_errors[filename] = []
-            lint_results = self.linter(filename)
-            results = lint_results.stdout.decode("utf-8", "ignore")
+            try:
+                lint_results = self.linter(filename)
+                results = lint_results.stdout.decode('utf-8', 'ignore')
+            except sh.ErrorReturnCode_2 as e:
+                results = e.stdout.decode('utf-8', 'ignore')
+                self.log = e.stderr.decode('utf-8', 'ignore')
             if results:
-                # import pdb; pdb.set_trace()
                 results = results.split('\n')
                 lint_errors[filename] += results
         self.lint_errors = lint_errors

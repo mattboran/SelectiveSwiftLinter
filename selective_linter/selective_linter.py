@@ -2,11 +2,6 @@
 import argparse
 import os
 
-from selective_linter.git_diff import GitDiff, GitHunk
-from selective_linter.linter import SwiftLint
-from selective_linter.output import LintError, ChangeVerifier
-from selective_linter.installer import Installer
-
 parser = argparse.ArgumentParser(description="Call SwiftLint only on the lines changed in git HEAD.")
 parser.add_argument('--dir', 
                     action='store', 
@@ -16,7 +11,15 @@ parser.add_argument('--install',
                     action='store_true')
 parser.set_defaults(install=False)
 
+running_as_script = False
+
 def run():
+    print("Running as script: {}".format(running_as_script))
+    if not running_as_script:
+        from selective_linter.git_diff import GitDiff
+        from selective_linter.linter import SwiftLint
+        from selective_linter.output import LintError, ChangeVerifier
+        from selective_linter.installer import Installer
     args = parser.parse_args()
     if args.install:
         installer = Installer(args.dir)
@@ -28,7 +31,6 @@ def run():
     linter = SwiftLint(dir=args.dir, files=differ.files_changed)
     errors = linter.check_errors_against_diff(differ.diff_lines)
     cache = ChangeVerifier(differ.hunks)
-    print("")
     if not errors:
         cache.clear_cache()
         return 0
@@ -44,4 +46,9 @@ def run():
         return 1
 
 if __name__ == "__main__":
-    SelectiveLinter.run()
+    from git_diff import GitDiff, GitHunk
+    from linter import SwiftLint
+    from output import LintError, ChangeVerifier
+    from installer import Installer
+    running_as_script = True
+    run()

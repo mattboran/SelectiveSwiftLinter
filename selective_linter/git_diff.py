@@ -7,7 +7,7 @@ import sys
 # Constants
 
 ANSI_ESCAPE_REGEX = r'\x1B[@-_][0-?]*[ -/]*[@-~]'
-HUNK_HEADER_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+,[0-9]+ @@)'
+HUNK_HEADER_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+(,[0-9]+)* @@)'
 
 class GitHunk:
 
@@ -15,7 +15,7 @@ class GitHunk:
         self.file = file
         self.line_numbers = []
         self.lines_changed = []
-
+        
         line_number = int(re.search(r'\+([0-9]+)', line_header).group(0)[1:])
         hunk = changes.split('\n')[1:]
         for line in hunk:
@@ -58,19 +58,20 @@ class GitDiff:
             print("Diffing file {}: {}".format(i, filename))
             self.hunks += self._get_diff_hunks(filename)
         self.diff_lines = self._get_diff_lines()
-
+        
     def _get_files_changed(self):
         files = self._git('--no-pager', 'diff', '--cached', '--name-only')
         files_changed = [self._directory + '/' + filename 
-                         for filename in files.split('\n') if filename and filename.endswith(".swift")]
+        for filename in files.split('\n') if filename and filename.endswith(".swift")]
         return files_changed
-
+    
     def _get_diff_hunks(self, filename):
         hunks = []
         diff = self._git('--no-pager', 'diff', '--cached', filename)
         stdout = diff.stdout.decode("utf-8", "ignore")
         diff_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
         captures = re.split(HUNK_HEADER_REGEX, diff_output)
+        captures = [capture for capture in captures if capture]
         line_numbers = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 0] 
         lines_changed = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 1]
         for line, changes in zip(line_numbers, lines_changed):

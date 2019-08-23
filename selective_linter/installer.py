@@ -2,6 +2,18 @@ import os
 
 import sh
 
+HOOK = """
+#!/usr/bin/bash
+skipswiftlint=$(git config --bool hooks.skipswiftlint)
+if [ "$skipswiftlint" != "true" ]
+then
+    python3 -m selective_linter
+    exit $?
+else
+    exit 0
+fi
+"""
+        
 class Installer:
 
     def __init__(self, dir):
@@ -21,16 +33,6 @@ class Installer:
             answer = input("Over-write existing pre-commit hook in this repository? (Y/n) ") or "n"
             if answer[0].lower() == "n":
                 return
-        hook = """
-        #!/usr/bin/bash
-        if [ "$skipswiftlint" != "true" ]
-        then
-            python3 -m selective_linter
-            exit $?
-        else
-            exit 0
-        fi
-        """
         with open(pre_hook_dir, 'w+') as pre_commit_hook:
-            pre_commit_hook.write(hook)
+            pre_commit_hook.write(HOOK)
         print("Wrote hook to {}".format(pre_hook_dir))
