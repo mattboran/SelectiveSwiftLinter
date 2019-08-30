@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="selective_linter",
-    version="0.0.1",
+    version="0.0.2",
     author="Matt Boran",
     author_email="mattboran@gmail.com",
     description="A script to be used as a pre-commit git hook for projects written in Swift",
@@ -17,7 +17,7 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+        "Operating System :: MacOS :: MacOS X",
     ],
     install_requires=[
         'colorama',

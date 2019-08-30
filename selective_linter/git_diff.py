@@ -54,7 +54,8 @@ class GitDiff:
         self._git = sh.git.bake(_cwd=directory)
 
     def diff(self):
-        self.files_changed = self._get_files_changed()
+        files_changed = self._get_files_changed()
+        self.files_changed = [f for f in files_changed if os.path.isfile(f)]
         for i, filename in enumerate(self.files_changed):
             print("Diffing file {}: {}".format(i, filename))
             self.hunks += self._get_diff_hunks(filename)

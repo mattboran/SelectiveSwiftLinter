@@ -6,4 +6,5 @@ build
 dist
 *.egg-info
 *.swift
-.lint_cache
+.lint_cache 
+.DS_Store
