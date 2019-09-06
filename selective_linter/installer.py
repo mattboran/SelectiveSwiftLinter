@@ -26,7 +26,7 @@ fi
 """
 PRE_COMMIT = '/.git/hooks/pre-commit'
 GITIGNORE = '/.gitignore'
-LINT_CACHE = '/.lint_cache'
+LINT_CACHE = '.lint_cache'
 
 class Installer:
 
