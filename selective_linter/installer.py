@@ -25,8 +25,8 @@ else
 fi
 """
 PRE_COMMIT = '/.git/hooks/pre-commit'
-GITIGNORE = '.gitignore'
-LINT_CACHE = '.lint_cache'
+GITIGNORE = '/.gitignore'
+LINT_CACHE = '/.lint_cache'
 
 class Installer:
 
@@ -62,7 +62,7 @@ class Installer:
     def _write_pre_commit_hook(self): 
         with open(self.pre_hook_dir, 'w+') as pre_commit_hook:
             pre_commit_hook.write(HOOK)
-        print("Wrote hook to {}".format(pre_hook_dir))
+        print("Wrote hook to {}".format(self.pre_hook_dir))
 
     def _make_pre_commit_hook_executable(self):
         sh.chmod('744', self.pre_hook_dir)
