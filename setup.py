@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="selective_linter",
-    version="0.0.3",
+    version="0.0.4",
     author="Matt Boran",
     author_email="mattboran@gmail.com",
     description="A script to be used as a pre-commit git hook for projects written in Swift",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mattboran/SelectiveSwiftLinter",
-    download_url="https://github.com/mattboran/SelectiveSwiftLinter/releases/download/0.0.3/selective_linter-0.0.3-py3-none-any.whl",
+    download_url="https://github.com/mattboran/SelectiveSwiftLinter/releases/download/0.0.4/selective_linter-0.0.4-py3-none-any.whl",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
