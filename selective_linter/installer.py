@@ -64,7 +64,7 @@ class Installer:
             pre_commit_hook.write(HOOK)
         print("Wrote hook to {}".format(pre_hook_dir))
 
-    def _make_pre_commit_hook_executable(self)
+    def _make_pre_commit_hook_executable(self):
         sh.chmod('744', self.pre_hook_dir)
         print("Made hook executable")
 
