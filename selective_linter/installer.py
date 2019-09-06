@@ -71,7 +71,7 @@ class Installer:
     def _add_lint_cache_to_gitignore(self):
         should_add_to_gitignore = False
         with open(self.gitignore_dir, 'r') as gitignore:
-            if LINT_CACHE not in gitignore.read()
+            if LINT_CACHE not in gitignore.read():
                 should_add_to_gitignore = True
         if should_add_to_gitignore:
             with open(self.gitignore_dir, 'a') as gitignore:
