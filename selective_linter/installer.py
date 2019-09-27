@@ -2,8 +2,8 @@ import os
 
 import sh
 
+SHEBANG = "#!/usr/bin/bash\n"
 HOOK = """
-#!/usr/bin/bash
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 skipswiftlint=$(git config --bool hooks.skipswiftlint)
 if [ "$skipswiftlint" != "true" ]
@@ -42,12 +42,13 @@ class Installer:
 
     def install(self): 
         pre_hook_dir = self.dir + PRE_COMMIT
-        should_confirm = os.path.exists(pre_hook_dir)
-        if should_confirm:
-            answer = input("Over-write existing pre-commit hook in this repository? (Y/n) ") or "n"
-            if answer[0].lower() == "n":
-                return
-        self._write_pre_commit_hook()
+        if os.path.exists(pre_hook_dir):
+            with open(self.pre_hook_dir, 'r') as pre_commit_hook:
+                if 'skipswiftlint' in pre_commit_hook.read():
+                    return
+            self._write_pre_commit_hook(append=True)
+        else:
+            self._write_pre_commit_hook(append=False)
         self._make_pre_commit_hook_executable()
         self._add_lint_cache_to_gitignore()
 
@@ -59,9 +60,15 @@ class Installer:
     def gitignore_dir(self):
         return self.dir + GITIGNORE
 
-    def _write_pre_commit_hook(self): 
-        with open(self.pre_hook_dir, 'w+') as pre_commit_hook:
-            pre_commit_hook.write(HOOK)
+    def _write_pre_commit_hook(self, append=False):
+        if append:
+
+            with open(self.pre_hook_dir, 'a') as pre_commit_hook:
+                pre_commit_hook.write(HOOK)
+        else: 
+            with open(self.pre_hook_dir, 'w+') as pre_commit_hook:
+                pre_commit_hook.write(SHEBANG)
+                pre_commit_hook.write(HOOK)
         print("Wrote hook to {}".format(self.pre_hook_dir))
 
     def _make_pre_commit_hook_executable(self):

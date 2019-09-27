@@ -19,6 +19,8 @@ To install the git hook to a repository, navigate to the root of that repository
 $ python3 -m selective_linter --install
 ```
 
+This also adds the `.lint_cache` file to your `.gitignore`.
+
 To deactivate the script run
 
 ```sh

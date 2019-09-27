@@ -29,7 +29,7 @@ def run():
     else:
         from selective_linter.git_diff import GitDiff
         from selective_linter.linter import SwiftLint
-        from selective_linter.output import LintError, ChangeVerifier
+        from selective_linter.output import LintError, ChangeVerifier, Warning
         from selective_linter.installer import Installer
 
     # Parse command line arguments and install if necessary
