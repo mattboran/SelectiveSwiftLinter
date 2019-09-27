@@ -3,6 +3,7 @@ import os
 import sh
 
 class SwiftLint:
+
     def __init__(self, dir=None, files=[]):
         self.linter = sh.swiftlint.lint.bake() # pylint: disable=no-member
         self.files = files

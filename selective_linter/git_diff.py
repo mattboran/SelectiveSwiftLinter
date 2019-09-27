@@ -48,22 +48,40 @@ class GitHunk:
 class GitDiff:
 
     def __init__(self, directory):
-        self.parent_branch = "develop"
+        self.parent_branch = "master"
         self.files_changed = []
+        self.staged_files = []
         self.diff_lines = []
         self.hunks = []
         self._directory = os.path.abspath(directory)
         self._git = sh.git.bake(_cwd=directory)
 
-    def diff(self):
-        files_changed = self._get_files_changed()
+    def diff(self, verbose=False):
         self.parent_branch = self._get_parent_branch()
-        print("Got parent branch: {}".format(self.parent_branch))
-        self.files_changed = [f for f in files_changed if os.path.isfile(f)]
-        for i, filename in enumerate(self.files_changed):
-            print("Diffing file {}: {}".format(i, filename))
+        files_changed = [
+            f for f in self._get_files_changed(staged_only=False) if os.path.isfile(f)
+        ]
+        staged_files = [
+            f for f in self._get_files_changed(staged_only=True) if os.path.isfile(f)
+        ]
+        for filename in files_changed:
             self.hunks += self._get_diff_hunks(filename)
+        self.files_changed = files_changed
+        self.staged_files = staged_files
         self.diff_lines = self._get_diff_lines()
+        if verbose:
+            self._print_debug_info()
+
+    def _print_debug_info(self):
+        print("Using parent branch: {}".format(self.parent_branch))
+        print("Total files changed: {}".format(len(self.files_changed)))
+        print("Total files staged: {}".format(len(self.staged_files)))
+        print("Total git hunks: {}".format(len(self.hunks)))
+        if self.staged_files:
+            print("Files staged: {}".format("\n\t".join(sorted(self.staged_files))))
+        unstaged_files = sorted(set(self.files_changed).difference(set(self.staged_files)))
+        if unstaged_files:
+            print("Unstaged files: {}".format("\n\t".join(sorted(unstaged_files))))
 
     def _get_current_branch(self): 
         branch = self._git('rev-parse', '--abbrev-ref', 'HEAD')
@@ -76,19 +94,24 @@ class GitDiff:
         branch_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
         commits = branch_output.split('\n')
         current_branch = self._get_current_branch()
-        commits_in_ancestor_branches = [commit for commit in commits if current_branch not in commit]
+        commits_in_ancestor_branches = [
+            commit for commit in commits if current_branch not in commit
+        ]
         parent_commit = commits_in_ancestor_branches[0]
         return re.search(BRANCH_REGEX, parent_commit).group(1)
 
-    def _get_files_changed(self):
-        files = self._git('--no-pager', 'diff', '--staged', self.parent_branch, '--name-only')
-        files_changed = [self._directory + '/' + filename 
-        for filename in files.split('\n') if filename and filename.endswith(".swift")]
-        return files_changed
+    def _get_files_changed(self, staged_only=False):
+        if staged_only:
+            files = self._git('--no-pager', 'diff', '--staged', '--name-only')
+        else:
+            files = self._git('--no-pager', 'diff', self.parent_branch, '--name-only')
+        return [self._directory + '/' + filename 
+                for filename in files.split('\n')
+                if filename and filename.endswith(".swift") and os.path.isfile(filename)]
     
     def _get_diff_hunks(self, filename):
         hunks = []
-        diff = self._git('--no-pager', 'diff', '--staged', self.parent_branch, filename)
+        diff = self._git('--no-pager', 'diff', self.parent_branch, filename)
         stdout = diff.stdout.decode('utf-8', 'ignore')
         diff_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
         regex = self._regex_for_diff_output(diff_output)
