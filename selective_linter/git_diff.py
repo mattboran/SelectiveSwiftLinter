@@ -9,6 +9,7 @@ import sys
 ANSI_ESCAPE_REGEX = r'\x1B[@-_][0-?]*[ -/]*[@-~]'
 HUNK_HEADER_NEW_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+ @@)'
 HUNK_HEADER_EXISTING_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+,[0-9]+ @@)'
+BRANCH_REGEX = r'\[([A-Za-z0-9]+)]'
 
 class GitHunk:
 
@@ -47,6 +48,7 @@ class GitHunk:
 class GitDiff:
 
     def __init__(self, directory):
+        self.parent_branch = "develop"
         self.files_changed = []
         self.diff_lines = []
         self.hunks = []
@@ -55,22 +57,39 @@ class GitDiff:
 
     def diff(self):
         files_changed = self._get_files_changed()
+        self.parent_branch = self._get_parent_branch()
+        print("Got parent branch: {}".format(self.parent_branch))
         self.files_changed = [f for f in files_changed if os.path.isfile(f)]
         for i, filename in enumerate(self.files_changed):
             print("Diffing file {}: {}".format(i, filename))
             self.hunks += self._get_diff_hunks(filename)
         self.diff_lines = self._get_diff_lines()
-        
+
+    def _get_current_branch(self): 
+        branch = self._git('rev-parse', '--abbrev-ref', 'HEAD')
+        stdout = branch.stdout.decode('utf-8', 'ignore')
+        return re.sub(ANSI_ESCAPE_REGEX, '', stdout)
+    
+    def _get_parent_branch(self):
+        branch = self._git('show-branch', '-a')
+        stdout = branch.stdout.decode('utf-8', 'ignore')
+        branch_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
+        commits = branch_output.split('\n')
+        current_branch = self._get_current_branch()
+        commits_in_ancestor_branches = [commit for commit in commits if current_branch not in commit]
+        parent_commit = commits_in_ancestor_branches[0]
+        return re.search(BRANCH_REGEX, parent_commit).group(1)
+
     def _get_files_changed(self):
-        files = self._git('--no-pager', 'diff', '--cached', '--name-only')
+        files = self._git('--no-pager', 'diff', '--staged', self.parent_branch, '--name-only')
         files_changed = [self._directory + '/' + filename 
         for filename in files.split('\n') if filename and filename.endswith(".swift")]
         return files_changed
     
     def _get_diff_hunks(self, filename):
         hunks = []
-        diff = self._git('--no-pager', 'diff', '--cached', filename)
-        stdout = diff.stdout.decode("utf-8", "ignore")
+        diff = self._git('--no-pager', 'diff', '--staged', self.parent_branch, filename)
+        stdout = diff.stdout.decode('utf-8', 'ignore')
         diff_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
         regex = self._regex_for_diff_output(diff_output)
         captures = re.split(regex, diff_output)
@@ -82,7 +101,7 @@ class GitDiff:
         return hunks
 
     def _regex_for_diff_output(self, diff_output):
-        if 'new file' in diff_output:
+        if "new file" in diff_output:
              return HUNK_HEADER_NEW_REGEX
         return HUNK_HEADER_EXISTING_REGEX
 
