@@ -56,7 +56,7 @@ def run():
     cache = ChangeVerifier(differ.hunks)
     if errors:
         # If the user made the same commit twice, clear the cache and bypass this check
-        if cache.has_unchanged_cache():
+        if cache.has_unchanged_cache() and not args.unstaged:
             cache.clear_cache()
             if staged_errors:
                 print(Warning.BYPASS_WARNING)

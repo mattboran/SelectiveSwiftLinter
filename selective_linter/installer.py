@@ -82,4 +82,5 @@ class Installer:
                 should_add_to_gitignore = True
         if should_add_to_gitignore:
             with open(self.gitignore_dir, 'a') as gitignore:
+                gitignore.write('\n' + '# swiftlint')
                 gitignore.write(LINT_CACHE + '\n')
