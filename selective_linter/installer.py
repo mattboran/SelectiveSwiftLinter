@@ -62,7 +62,6 @@ class Installer:
 
     def _write_pre_commit_hook(self, append=False):
         if append:
-
             with open(self.pre_hook_dir, 'a') as pre_commit_hook:
                 pre_commit_hook.write(HOOK)
         else: 
@@ -70,6 +69,16 @@ class Installer:
                 pre_commit_hook.write(SHEBANG)
                 pre_commit_hook.write(HOOK)
         print("Wrote hook to {}".format(self.pre_hook_dir))
+        self._sanitize_file(self.pre_hook_dir)
+        
+    def _sanitize_file(self, file):
+        text = ''
+        with open(file, 'r') as content:
+            import pdb; pdb.set_trace()
+            text = content.read()
+        text.replace('\r', '')
+        with open(file, 'w+') as content:
+            content.write(text)
 
     def _make_pre_commit_hook_executable(self):
         sh.chmod('744', self.pre_hook_dir)
