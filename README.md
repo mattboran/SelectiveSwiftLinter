@@ -16,13 +16,18 @@ $ pip3 install selective_linter
 To install the git hook to a repository, navigate to the root of that repository and run
 
 ```sh
-$ python3 -m selective_linter --install
+$ python3 -m selective_linter -i
 ```
 
-This also adds the `.lint_cache` file to your `.gitignore`.
+This also adds the `.lint_cache` file to your `.gitignore`. 
 
 To deactivate the script run
 
 ```sh
-$ git config hooks.skipswitflint true
+$ git config hooks.skipswiftlint true
+```
+
+You can also run the script manually to see an optional more verbose output
+```sh
+$ python3 -m selective_linter -u
 ```
