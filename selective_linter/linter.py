@@ -14,20 +14,18 @@ class SwiftLint:
 
     def check_errors_against_diff(self, diff_lines):
         errors = set()
-        for line in diff_lines:
-            filename = line.split(':')[0]
-            line_number = line.split(':')[1]
-            potential_errors = self.lint_errors[filename]
-            for error in potential_errors:
-                location = ":".join([filename, line_number])
-                if location in error:
-                    errors.add(error)
+        for file in self.files:
+            relevant_lines = [line for line in diff_lines if line.startswith(file)]
+            possible_errors = self.lint_errors.get(file) or []
+            for error in possible_errors:
+                line_and_file = ":".join(error.split(":")[:2])
+                if error.startswith(line_and_file):
+                    possible_errors.add(error)
         return errors
 
     def _lint(self):
         lint_errors = {}
         for filename in self.files:
-            lint_errors[filename] = []
             try:
                 lint_results = self.linter(filename)
                 results = lint_results.stdout.decode('utf-8', 'ignore')
@@ -35,7 +33,6 @@ class SwiftLint:
                 results = e.stdout.decode('utf-8', 'ignore')
                 self.log = e.stderr.decode('utf-8', 'ignore')
             if results:
-                results = results.split('\n')
-                lint_errors[filename] += results
+                lint_errors[filename] = [result for result in results.split('\n') if result]
         return lint_errors
 
