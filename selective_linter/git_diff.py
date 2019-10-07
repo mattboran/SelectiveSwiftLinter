@@ -18,16 +18,16 @@ class GitHunk:
         self.line_numbers = []
         self.lines_changed = []
         matches = re.search(r'\+([0-9]+)', line_header)
-        line_number = int(matches.group(0)[1:])
         hunk = changes.split('\n')[1:]
+        line_number = int(matches.group(0)[1:])
         for line in hunk:
             if line.startswith('-'): 
                 continue
-            elif line.startswith('+'): 
+            else:
                 line = line[1:]
                 self.line_numbers.append(line_number)
                 self.lines_changed.append(line)
-            line_number += 1
+                line_number += 1
 
     def get_file_and_line_numbers(self):
         lines = []
@@ -95,7 +95,9 @@ class GitDiff:
         commits = branch_output.split('\n')
         current_branch = self._get_current_branch()
         commits_in_ancestor_branches = [
-            commit for commit in commits if current_branch not in commit and "*" in commit
+            commit for commit in commits if current_branch not in commit
+                and "*" in commit
+                and re.compile(r'\++\*').search(commit)
         ]
         parent_commit = commits_in_ancestor_branches[0]
         return re.search(BRANCH_REGEX, parent_commit).group(1)
@@ -119,8 +121,7 @@ class GitDiff:
         line_numbers = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 0] 
         lines_changed = [group for (idx, group) in enumerate(captures[1:]) if idx % 2 == 1]
         for line, changes in zip(line_numbers, lines_changed):
-            hunk = GitHunk(filename, line, changes)
-            hunks.append(hunk)
+            hunks.append(GitHunk(filename, line, changes))
         return hunks
 
     def _regex_for_diff_output(self, diff_output):

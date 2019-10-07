@@ -55,9 +55,9 @@ def run():
     exit_code = 0
     cache = ChangeVerifier(differ.hunks)
     if errors:
-        # If the user made the same commit twice, clear the cache and bypass this check
+        # If the user made the same commit twice, bypass this check
+        # The cache is cleared by the pre commit hook
         if cache.has_unchanged_cache() and not args.unstaged:
-            cache.clear_cache()
             if staged_errors:
                 print(Warning.BYPASS_WARNING)
             else: 
@@ -76,8 +76,6 @@ def run():
                     print(LintError(error))
             else:
                 print(Warning.UNSTAGED_WARNING)
-    else:
-        cache.clear_cache()
     return exit_code
 
 

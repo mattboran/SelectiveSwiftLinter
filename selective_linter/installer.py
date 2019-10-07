@@ -2,7 +2,7 @@ import os
 
 import sh
 
-SHEBANG = "#!/usr/bin/bash\n"
+SHEBANG = "#!/usr/bin/env bash\n"
 HOOK = """
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 skipswiftlint=$(git config --bool hooks.skipswiftlint)
@@ -18,8 +18,12 @@ You can disable this check by using:
 
     git config hooks.skipswiftlint true
 EOF
+if [ $retVal = 0 ]
+then
+    rm ../../.lint_cache 2> /dev/null
 fi
     exit $retVal
+fi
 else
     exit 0
 fi
@@ -74,7 +78,6 @@ class Installer:
     def _sanitize_file(self, file):
         text = ''
         with open(file, 'r') as content:
-            import pdb; pdb.set_trace()
             text = content.read()
         text.replace('\r', '')
         with open(file, 'w+') as content:
