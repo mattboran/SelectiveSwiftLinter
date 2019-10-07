@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 import argparse
 import os
 
@@ -19,7 +19,7 @@ parser.set_defaults(unstaged=False)
 running_as_script = False
 
 
-def run():
+def main():
     # Imports for running locally and running as module
     if running_as_script:
         from git_diff import GitDiff, GitHunk
@@ -81,4 +81,4 @@ def run():
 
 if __name__ == "__main__":
     running_as_script = True
-    run()
+    main()

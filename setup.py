@@ -24,4 +24,9 @@ setuptools.setup(
         'sh'
     ],
     python_requires='>3.0.0',
+    entry_points = {
+        'console_scripts': [
+            'selective_linter = selective_linter.selective_linter:main'
+        ]
+    }
 )

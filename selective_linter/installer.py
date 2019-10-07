@@ -8,7 +8,7 @@ PATH=$PATH:/usr/local/bin:/usr/local/sbin
 skipswiftlint=$(git config --bool hooks.skipswiftlint)
 if [ "$skipswiftlint" != "true" ]
 then
-    python3 -m selective_linter
+    selective_linter
     retVal=$?
     if [ $retVal != 0 ]
     then
@@ -85,5 +85,5 @@ class Installer:
                 should_add_to_gitignore = True
         if should_add_to_gitignore:
             with open(self.gitignore_dir, 'a') as gitignore:
-                gitignore.write('\n' + '# swiftlint')
+                gitignore.write('\n' + '# swiftlint\n')
                 gitignore.write(LINT_CACHE + '\n')
