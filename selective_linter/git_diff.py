@@ -9,7 +9,7 @@ import sys
 ANSI_ESCAPE_REGEX = r'\x1B[@-_][0-?]*[ -/]*[@-~]'
 HUNK_HEADER_NEW_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+ @@)'
 HUNK_HEADER_EXISTING_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+,[0-9]+ @@)'
-BRANCH_REGEX = r'\[([A-Za-z0-9]+)]'
+BRANCH_REGEX = r'\[([A-Za-z0-9/-]+)]'
 
 class GitHunk:
 
@@ -86,7 +86,7 @@ class GitDiff:
     def _get_current_branch(self): 
         branch = self._git('rev-parse', '--abbrev-ref', 'HEAD')
         stdout = branch.stdout.decode('utf-8', 'ignore')
-        return re.sub(ANSI_ESCAPE_REGEX, '', stdout)
+        return re.sub(ANSI_ESCAPE_REGEX, '', stdout.strip())
     
     def _get_parent_branch(self):
         branch = self._git('show-branch', '-a')
@@ -95,7 +95,7 @@ class GitDiff:
         commits = branch_output.split('\n')
         current_branch = self._get_current_branch()
         commits_in_ancestor_branches = [
-            commit for commit in commits if current_branch not in commit
+            commit for commit in commits if current_branch not in commit and "*" in commit
         ]
         parent_commit = commits_in_ancestor_branches[0]
         return re.search(BRANCH_REGEX, parent_commit).group(1)
