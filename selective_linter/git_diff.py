@@ -99,7 +99,6 @@ class GitDiff:
                 and "*" in commit
                 and re.compile(r'\++\*?!*').search(commit)
         ]
-        import pdb; pdb.set_trace()
         if not commits_in_ancestor_branches:
             return current_branch
         parent = re.search(BRANCH_REGEX, commits_in_ancestor_branches[0])
