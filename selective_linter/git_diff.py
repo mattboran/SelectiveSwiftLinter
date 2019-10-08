@@ -99,8 +99,9 @@ class GitDiff:
                 and "*" in commit
                 and re.compile(r'\++\*').search(commit)
         ]
-        parent_commit = commits_in_ancestor_branches[0]
-        return re.search(BRANCH_REGEX, parent_commit).group(1)
+        if not commits_in_ancestor_branches:
+            return current_branch
+        return re.search(BRANCH_REGEX, commits_in_ancestor_branches[0]).group(1)
 
     def _get_files_changed(self, staged_only=False):
         if staged_only:

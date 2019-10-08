@@ -3,6 +3,7 @@
 This is a package to be used as a pre-commit git hook to lint changes in .swift files using [Swiftlint Installed via Homebrew](https://formulae.brew.sh/formula/swiftlint).
 
 ### Installation and  Dependencies
+
 To install swiftlint from the terminal use Homebrew:
 ```sh
 $ brew install swiftlint
@@ -16,7 +17,7 @@ $ pip3 install selective_linter
 To install the git hook to a repository, navigate to the root of that repository and run
 
 ```sh
-$ python3 -m selective_linter -i
+$ selective_linter -i
 ```
 
 This also adds the `.lint_cache` file to your `.gitignore`. 
@@ -29,5 +30,5 @@ $ git config hooks.skipswiftlint true
 
 You can also run the script manually to see an optional more verbose output
 ```sh
-$ python3 -m selective_linter -u
+$ selective_linter -u
 ```
