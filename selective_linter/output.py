@@ -8,7 +8,7 @@ from colorama import Fore, Style
 class Warning:
 
     UNSTAGED_WARNING = (Fore.YELLOW + "\nYou have lint errors in unstaged files! "
-        "Run python3 -m selective_linter -u to see those errors too" + Fore.RESET)
+        "Run selective_linter -u to see those errors too" + Fore.RESET)
     BYPASS_WARNING = Fore.YELLOW + "Committing warnings or errors." + Fore.RESET
 
 
