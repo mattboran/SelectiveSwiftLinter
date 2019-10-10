@@ -12,16 +12,15 @@ then
     retVal=$?
     if [ $retVal != 0 ]
     then
-    cat <<\EOF
+        cat <<\EOF
 
 You can disable this check by using:
 
     git config hooks.skipswiftlint true
 EOF
-if [ $retVal = 0 ]
-then
-    rm ../../.lint_cache 2> /dev/null
-fi
+    else
+        rm .lint_cache 2> /dev/null
+    fi
     exit $retVal
 fi
 else

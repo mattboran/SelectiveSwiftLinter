@@ -102,11 +102,13 @@ class GitDiff:
         if not commits_in_ancestor_branches:
             return current_branch
         parent = re.search(BRANCH_REGEX, commits_in_ancestor_branches[0])
-        if not parent:
-            if 'develop' in commits_in_ancestor_branches[0]:
-                return 'develop'
-            return 'master'
-        return parent.group(1)
+        # import pdb; pdb.set_trace()
+        return 'develop'
+        # if not parent:
+        #     if 'develop' in commits_in_ancestor_branches[0]:
+        #         return 'develop'
+        #     return 'master'
+        # return parent.group(1)
 
     def _get_files_changed(self, staged_only=False):
         if staged_only:
