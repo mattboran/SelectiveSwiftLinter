@@ -20,7 +20,7 @@ class GitHunk:
         matches = re.search(r'\+([0-9]+)', line_header)
         hunk = changes.split('\n')[1:]
         line_number = int(matches.group(0)[1:])
-        for line in hunk:
+        for line in hunk[1:-1]:
             if line.startswith('-'): 
                 continue
             else:
@@ -142,4 +142,3 @@ class GitDiff:
         for hunk in self.hunks:
             diff_lines += hunk.get_file_and_line_numbers()
         return diff_lines
-        

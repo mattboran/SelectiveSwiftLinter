@@ -19,7 +19,7 @@ class SwiftLint:
             possible_errors = self.lint_errors.get(file) or []
             for error in possible_errors:
                 line_and_file = ":".join(error.split(":")[:2])
-                if error.startswith(line_and_file):
+                if line_and_file in relevant_lines:
                     errors.add(error)
         return errors
 
