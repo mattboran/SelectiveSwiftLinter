@@ -27,8 +27,3 @@ To deactivate the script run
 ```sh
 $ git config hooks.skipswiftlint true
 ```
-
-You can also run the script manually to see an optional more verbose output
-```sh
-$ selective_linter -u
-```

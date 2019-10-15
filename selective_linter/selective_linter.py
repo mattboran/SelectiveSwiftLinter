@@ -12,9 +12,6 @@ parser.add_argument('-d', '--dir',
 parser.add_argument('-i', '--install',
                     action='store_true')
 parser.set_defaults(install=False)
-parser.add_argument('-u', '--unstaged',
-                    action='store_true')
-parser.set_defaults(unstaged=False)
 
 running_as_script = False
 
@@ -45,37 +42,22 @@ def main():
 
     # Process diffs and lint
     differ = GitDiff(args.dir)
-    differ.diff(verbose=running_as_script or args.unstaged)
-    linter = SwiftLint(dir=args.dir, files=differ.files_changed)
+    differ.diff(verbose=running_as_script)
+    linter = SwiftLint(dir=args.dir, files=differ.staged_files)
     errors = linter.check_errors_against_diff(differ.diff_lines)
-    staged_errors = set([
-        error for error in errors if error.split(":")[0] in differ.staged_files
-    ])
-    unstaged_errors = errors.difference(staged_errors)
     exit_code = 0
     cache = ChangeVerifier(differ.hunks)
     if errors:
         # If the user made the same commit twice, bypass this check
         # The cache is cleared by the pre commit hook
-        if cache.has_unchanged_cache() and not args.unstaged:
-            if staged_errors:
-                print(Warning.BYPASS_WARNING)
-            else: 
-                print(Warning.UNSTAGED_WARNING)
+        if cache.has_unchanged_cache():
+            print(Warning.BYPASS_WARNING)
             return exit_code
         cache.write_cache()
-        if staged_errors:
-            for error in sorted(staged_errors):
-                print(LintError(error))
-            print("\nErrors found. Please fix errors and retry or make no changes and re-commit to bypass.")
-            exit_code = 1
-        else:
-            if args.unstaged:
-                print("Unstaged errors: ")
-                for error in sorted(unstaged_errors):
-                    print(LintError(error))
-            else:
-                print(Warning.UNSTAGED_WARNING)
+        for error in sorted(errors):
+            print(LintError(error))
+        print("\nErrors found. Please fix errors and retry or make no changes and re-commit to bypass.")
+        exit_code = 1
     return exit_code
 
 

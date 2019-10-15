@@ -21,7 +21,7 @@ class GitHunk:
         hunk = changes.split('\n')[1:]
         line_number = int(matches.group(0)[1:])
         for line in hunk[1:-1]:
-            if line.startswith('-'): 
+            if line.startswith('-'):
                 continue
             else:
                 line = line[1:]
@@ -48,8 +48,6 @@ class GitHunk:
 class GitDiff:
 
     def __init__(self, directory):
-        self.parent_branch = "master"
-        self.files_changed = []
         self.staged_files = []
         self.diff_lines = []
         self.hunks = []
@@ -57,71 +55,31 @@ class GitDiff:
         self._git = sh.git.bake(_cwd=directory)
 
     def diff(self, verbose=False):
-        self.parent_branch = self._get_parent_branch()
-        files_changed = [
-            f for f in self._get_files_changed(staged_only=False) if os.path.isfile(f)
-        ]
         staged_files = [
-            f for f in self._get_files_changed(staged_only=True) if os.path.isfile(f)
+            f for f in self._get_files_changed() if os.path.isfile(f)
         ]
-        for filename in files_changed:
+        for filename in staged_files:
             self.hunks += self._get_diff_hunks(filename)
-        self.files_changed = files_changed
         self.staged_files = staged_files
         self.diff_lines = self._get_diff_lines()
         if verbose:
             self._print_debug_info()
 
     def _print_debug_info(self):
-        print("Using parent branch: {}".format(self.parent_branch))
-        print("Total files changed: {}".format(len(self.files_changed)))
         print("Total files staged: {}".format(len(self.staged_files)))
         print("Total git hunks: {}".format(len(self.hunks)))
         if self.staged_files:
             print("Files staged: {}".format("\n\t".join(sorted(self.staged_files))))
-        unstaged_files = sorted(set(self.files_changed).difference(set(self.staged_files)))
-        if unstaged_files:
-            print("Unstaged files: {}".format("\n\t".join(sorted(unstaged_files))))
-
-    def _get_current_branch(self): 
-        branch = self._git('rev-parse', '--abbrev-ref', 'HEAD')
-        stdout = branch.stdout.decode('utf-8', 'ignore')
-        return re.sub(ANSI_ESCAPE_REGEX, '', stdout.strip())
-    
-    def _get_parent_branch(self):
-        branch = self._git('show-branch', '-a')
-        stdout = branch.stdout.decode('utf-8', 'ignore')
-        branch_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
-        commits = branch_output.split('\n')
-        current_branch = self._get_current_branch()
-        commits_in_ancestor_branches = [
-            commit for commit in commits if current_branch not in commit
-                and "*" in commit
-                and re.compile(r'\++\*?!*').search(commit)
-        ]
-        if not commits_in_ancestor_branches:
-            return current_branch
-        parent = re.search(BRANCH_REGEX, commits_in_ancestor_branches[0])
-        # import pdb; pdb.set_trace()
-        return 'develop'
-        # if not parent:
-        #     if 'develop' in commits_in_ancestor_branches[0]:
-        #         return 'develop'
-        #     return 'master'
-        # return parent.group(1)
-
-    def _get_files_changed(self, staged_only=False):
-        if staged_only:
-            files = self._git('--no-pager', 'diff', '--staged', '--name-only')
-        else:
-            files = self._git('--no-pager', 'diff', self.parent_branch, '--name-only')
+        
+    def _get_files_changed(self):
+        files = self._git('--no-pager', 'diff', '--staged', '--name-only')
         return [self._directory + '/' + filename 
                 for filename in files.split('\n')
                 if filename and filename.endswith(".swift") and os.path.isfile(filename)]
     
     def _get_diff_hunks(self, filename):
         hunks = []
-        diff = self._git('--no-pager', 'diff', self.parent_branch, filename)
+        diff = self._git('--no-pager', 'diff', 'HEAD', filename)
         stdout = diff.stdout.decode('utf-8', 'ignore')
         diff_output = re.sub(ANSI_ESCAPE_REGEX, '', stdout)
         regex = self._regex_for_diff_output(diff_output)
