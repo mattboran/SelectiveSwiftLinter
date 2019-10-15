@@ -72,7 +72,7 @@ class GitDiff:
             print("Files staged: {}".format("\n\t".join(sorted(self.staged_files))))
         
     def _get_files_changed(self):
-        files = self._git('--no-pager', 'diff', '--staged', '--name-only')
+        files = self._git('--no-pager', 'diff', '--name-only')
         return [self._directory + '/' + filename 
                 for filename in files.split('\n')
                 if filename and filename.endswith(".swift") and os.path.isfile(filename)]
