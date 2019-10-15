@@ -22,7 +22,6 @@ EOF
         rm .lint_cache 2> /dev/null
     fi
     exit $retVal
-fi
 else
     exit 0
 fi
