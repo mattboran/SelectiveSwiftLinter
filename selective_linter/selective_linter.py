@@ -15,9 +15,9 @@ running_as_script = False
 def main():
     # Imports for running locally and running as module
     if running_as_script:
-        from git_diff import GitDiff
-        from linter import SwiftLint
-        from output import LintError
+        from git_diff import GitDiff # pylint: disable=import-error
+        from linter import SwiftLint # pylint: disable=import-error
+        from output import LintError # pylint: disable=import-error
     else:
         from selective_linter.git_diff import GitDiff
         from selective_linter.linter import SwiftLint

@@ -9,10 +9,10 @@ class LintError:
         self.file = split_error[0]
         self.line = split_error[1]
         self.character = split_error[2]
-        self.error_type = split_error[3]
-        self.description = split_error[4]
+        self.error_type = split_error[3].strip()
+        self.description = split_error[4].strip()
         aux_length = len(":".join(split_error[:5])) + 1
-        self.code = error[aux_length:]
+        self.code = error[aux_length:].strip()
 
     def __str__(self):
-        return self.file + ":" + self.line + ": warning:" + self.description
+        return self.file + ":" + self.line + ": warning: " + self.description

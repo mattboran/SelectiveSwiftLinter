@@ -29,7 +29,7 @@ class SwiftLint:
             try:
                 lint_results = self.linter(filename)
                 results = lint_results.stdout.decode('utf-8', 'ignore')
-            except sh.ErrorReturnCode_2 as e:
+            except sh.ErrorReturnCode_2 as e: # pylint: disable=no-member
                 results = e.stdout.decode('utf-8', 'ignore')
                 self.log = e.stderr.decode('utf-8', 'ignore')
             if results:
