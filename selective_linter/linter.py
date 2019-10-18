@@ -33,4 +33,3 @@ class SwiftLint:
             if results:
                 lint_errors[filename] = [result for result in results.split('\n') if result]
         return lint_errors
-
