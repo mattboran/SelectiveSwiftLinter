@@ -30,11 +30,9 @@ def main():
     differ.diff(verbose=running_as_script)
     linter = SwiftLint(dir=args.dir, files=differ.staged_files)
     errors = linter.check_errors_against_diff(differ.diff_lines)
-    exit_code = 0
     if errors:
         for error in sorted(errors):
             print(LintError(error))
-        return 0
     return 0
 
 
