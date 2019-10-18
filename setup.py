@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="selective_linter",
-    version="1.0.0",
+    version="1.0.1",
     author="Matt Boran",
     author_email="mattboran@gmail.com",
     description="A script to be run from Xcode to lint files as you make changes",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mattboran/SelectiveSwiftLinter",
-    download_url="https://github.com/mattboran/SelectiveSwiftLinter/releases/download/1.0.0/selective_linter-1.0.0-py3-none-any.whl",
+    download_url="https://github.com/mattboran/SelectiveSwiftLinter/releases/download/1.0.1/selective_linter-1.0.1-py3-none-any.whl",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

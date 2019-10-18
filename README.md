@@ -14,6 +14,12 @@ To install this Python3 package
 $ pip3 install selective_linter
 ```
 
+To update existing installation do
+
+```sh
+$ pip3 install --upgrade selective_linter
+```
+
 To install this into an Xcode project, add the following run script build phase in project settings:
 
 Shell: `/usr/bin/env bash`
