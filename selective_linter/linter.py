@@ -9,7 +9,6 @@ class SwiftLint:
         self.files = files
         rootdir = dir or os.getcwd()
         os.chdir(os.path.abspath(rootdir))
-        self.log = ""
         self.lint_errors = self._lint()
 
     def check_errors_against_diff(self, diff_lines):
@@ -27,11 +26,10 @@ class SwiftLint:
         lint_errors = {}
         for filename in self.files:
             try:
-                lint_results = self.linter(filename)
+                lint_results = self.linter('--quiet', filename)
                 results = lint_results.stdout.decode('utf-8', 'ignore')
             except sh.ErrorReturnCode_2 as e: # pylint: disable=no-member
                 results = e.stdout.decode('utf-8', 'ignore')
-                self.log = e.stderr.decode('utf-8', 'ignore')
             if results:
                 lint_errors[filename] = [result for result in results.split('\n') if result]
         return lint_errors
