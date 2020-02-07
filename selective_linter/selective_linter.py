@@ -5,8 +5,8 @@ import os
 parser = argparse.ArgumentParser(description="""
     Call SwiftLint only on the lines changed relative to the base branch.
     """)
-parser.add_argument('-d', '--dir', 
-                    action='store', 
+parser.add_argument('-d', '--dir',
+                    action='store',
                     type=str,
                     default=os.getcwd())
 running_as_script = False
