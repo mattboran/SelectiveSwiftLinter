@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import os
 import sys
 
 from selective_linter.selective_linter import main

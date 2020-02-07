@@ -24,7 +24,7 @@ def main():
         from selective_linter.output import LintError
 
     args = parser.parse_args()
-    
+
     # Process diffs and lint
     differ = GitDiff(args.dir)
     differ.diff(verbose=running_as_script)

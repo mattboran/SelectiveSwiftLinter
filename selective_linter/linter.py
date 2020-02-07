@@ -2,10 +2,11 @@
 import os
 import sh
 
+
 class SwiftLint:
 
     def __init__(self, dir=None, files=[]):
-        self.linter = sh.swiftlint.lint.bake() # pylint: disable=no-member
+        self.linter = sh.swiftlint.lint.bake()
         self.files = files
         rootdir = dir or os.getcwd()
         os.chdir(os.path.abspath(rootdir))
@@ -35,4 +36,3 @@ class SwiftLint:
             if results:
                 lint_errors[filename] = [result for result in results.split('\n') if result]
         return lint_errors
-

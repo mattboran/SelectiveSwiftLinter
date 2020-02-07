@@ -2,7 +2,6 @@
 import os
 import re
 import sh
-import sys
 
 # Constants
 
@@ -10,6 +9,7 @@ ANSI_ESCAPE_REGEX = r'\x1B[@-_][0-?]*[ -/]*[@-~]'
 HUNK_HEADER_NEW_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+ @@)'
 HUNK_HEADER_EXISTING_REGEX = r'(@@ -[0-9]+,[0-9]+ \+[0-9]+,[0-9]+ @@)'
 BRANCH_REGEX = r'\[([A-Za-z0-9/-]+)]'
+
 
 class GitHunk:
 
@@ -70,15 +70,15 @@ class GitDiff:
         print("Total git hunks: {}".format(len(self.hunks)))
         if self.staged_files:
             print("Files staged: {}".format("\n\t".join(sorted(self.staged_files))))
-        
+
     def _get_files_changed(self):
         unstaged_files = self._git('--no-pager', 'diff', '--name-only').stdout.decode('utf-8', 'ignore')
         staged_files = self._git('--no-pager', 'diff', '--name-only', 'HEAD').stdout.decode('utf-8', 'ignore')
         files = unstaged_files + staged_files
-        return [self._directory + '/' + filename 
+        return [self._directory + '/' + filename
                 for filename in files.split('\n')
                 if filename and filename.endswith(".swift") and os.path.isfile(filename)]
-    
+
     def _get_diff_hunks(self, filename):
         hunks = []
         diff = self._git('--no-pager', 'diff', 'HEAD', filename)
@@ -94,7 +94,7 @@ class GitDiff:
 
     def _regex_for_diff_output(self, diff_output):
         if "new file" in diff_output:
-             return HUNK_HEADER_NEW_REGEX
+            return HUNK_HEADER_NEW_REGEX
         return HUNK_HEADER_EXISTING_REGEX
 
     def _get_diff_lines(self):
