@@ -21,12 +21,12 @@ setuptools.setup(
     ],
     install_requires=[
         'sh>=1,<2',
-        'GitPython>=3,<4'
+        'PyDriller>=1,<2'
     ],
-    python_requires='>3.0.0',
+    python_requires='>3.6.0',
     entry_points={
         'console_scripts': [
-            'selective_linter = selective_linter.selective_linter:main'
+            'selective_linter = main:main'
         ]
     }
 )
